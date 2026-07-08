@@ -6,6 +6,7 @@
 <title>MaritimeConnect360 — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -224,7 +225,8 @@ body {
   background: var(--accent-faint);
   border-left-color: var(--accent);
 }
-.sidebar-icon { font-size: 14px; opacity: 0.75; }
+.sidebar-icon { font-size: 14px; opacity: 0.75; display:flex; align-items:center; }
+.sidebar-icon.material-icons { font-size: 18px; }
 .sidebar-badge {
   margin-left: auto;
   font-size: 10px;
@@ -1472,7 +1474,7 @@ tbody td {
       </div>
       <div class="login-pw-wrap">
         <input id="login-password" type="password" placeholder="••••••••" value="Welcome@1234" />
-        <button type="button" class="login-pw-toggle" onclick="toggleLoginPw()" id="login-pw-btn">👁</button>
+        <button type="button" class="login-pw-toggle" onclick="toggleLoginPw()" id="login-pw-btn"><span class="material-icons" style="font-size:18px;">visibility</span></button>
       </div>
     </div>
 
@@ -1632,10 +1634,10 @@ tbody td {
             <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
             <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
           </div>
-          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
-          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-item" onclick="goTo('profile')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">account_circle</span> My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">lock</span> Change Password</div>
           <div class="nav-menu-sep"></div>
-          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+          <div class="nav-menu-item danger" onclick="goTo('login')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">logout</span> Sign out</div>
         </div>
       </div>
     </div>
@@ -1644,15 +1646,15 @@ tbody td {
     <aside class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-label">Workspace</div>
-        <div class="sidebar-item active"><span class="sidebar-icon">⊞</span> Applications</div>
-        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon">👥</span> Users <span class="sidebar-badge">12</span></div>
-        <!-- <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div> -->
+        <div class="sidebar-item active"><span class="sidebar-icon material-icons">grid_view</span> Applications</div>
+        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon material-icons">group</span> Users <span class="sidebar-badge">12</span></div>
+        <!-- <div class="sidebar-item"><span class="sidebar-icon material-icons">business</span> Tenants</div> -->
       </div>
       <!-- <div class="sidebar-section">
         <div class="sidebar-label">System</div>
-        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
-        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
-        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">settings</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">bar_chart</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">notifications</span> Notifications</div>
       </div> -->
     </aside>
     <main class="main">
@@ -1664,7 +1666,7 @@ tbody td {
         </div>
         <div class="page-meta" style="display:flex; align-items:center; gap:10px; margin-top:4px;">
           <div class="search-box has-tooltip">
-            <span style="font-size:12px; opacity:0.6;">🔍</span>
+            <span class="material-icons" style="font-size:16px; opacity:0.6;">search</span>
             Quick find…
             <span class="kbd">⌘K</span>
             <div class="tooltip" style="right:0; white-space:nowrap;">Search across all apps</div>
@@ -1687,8 +1689,8 @@ tbody td {
           <div><strong>1</strong>Coming soon</div>
         </div>
         <div class="summary-stat">
-          <div class="summary-dot" style="background: var(--navy);"></div>
-          <div><strong style="color:var(--navy)">Admin</strong>Your access level</div>
+          <span class="material-icons" style="font-size:16px; color:var(--navy); flex-shrink:0;">key</span>
+          <div><strong style="color:var(--navy)">Full Access</strong>All modules unlocked</div>
         </div>
       </div>
 
@@ -1721,8 +1723,7 @@ tbody td {
             <div class="card-actions">
               <button class="btn-launch" onclick="launchApp('Bunker Quantity Survey')">Launch ↗</button>
               <div class="card-icon-actions">
-                <button class="icon-btn has-tooltip" onclick="downloadApp('Bunker Quantity Survey')">⬇<div class="tooltip">Export data</div></button>
-                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Bunker Quantity Survey')"><span class="material-icons" style="font-size:15px;">download</span><div class="tooltip">Download document</div></button>
               </div>
             </div>
           </div>
@@ -1746,8 +1747,7 @@ tbody td {
             <div class="card-actions">
               <button class="btn-launch" onclick="launchApp('Vessel Condition Survey')">Launch ↗</button>
               <div class="card-icon-actions">
-                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Condition Survey')">⬇<div class="tooltip">Export data</div></button>
-                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Condition Survey')"><span class="material-icons" style="font-size:15px;">download</span><div class="tooltip">Download document</div></button>
               </div>
             </div>
           </div>
@@ -1771,8 +1771,7 @@ tbody td {
             <div class="card-actions">
               <button class="btn-launch" onclick="launchApp('Vessel Inspection')">Launch ↗</button>
               <div class="card-icon-actions">
-                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Inspection')">⬇<div class="tooltip">Export report</div></button>
-                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Inspection')"><span class="material-icons" style="font-size:15px;">download</span><div class="tooltip">Download document</div></button>
               </div>
             </div>
           </div>
@@ -1808,8 +1807,7 @@ tbody td {
             <div class="card-actions">
               <button class="btn-launch" onclick="launchApp('Global Sanctions')">Launch ↗</button>
               <div class="card-icon-actions">
-                <button class="icon-btn has-tooltip" onclick="downloadApp('Global Sanctions')">⬇<div class="tooltip">Export screening report</div></button>
-                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Global Sanctions')"><span class="material-icons" style="font-size:15px;">download</span><div class="tooltip">Download document</div></button>
               </div>
             </div>
           </div>
@@ -1835,8 +1833,7 @@ tbody td {
             <div class="card-actions">
               <button class="btn-launch" disabled>Launch ↗</button>
               <div class="card-icon-actions">
-                <button class="icon-btn" disabled>⬇</button>
-                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Under development — coming Q3 2025</div></button>
+                <button class="icon-btn" disabled><span class="material-icons" style="font-size:15px;">download</span></button>
               </div>
             </div>
           </div>
@@ -1863,10 +1860,10 @@ tbody td {
             <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
             <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
           </div>
-          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
-          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-item" onclick="goTo('profile')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">account_circle</span> My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">lock</span> Change Password</div>
           <div class="nav-menu-sep"></div>
-          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+          <div class="nav-menu-item danger" onclick="goTo('login')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">logout</span> Sign out</div>
         </div>
       </div>
     </div>
@@ -1875,15 +1872,15 @@ tbody td {
     <aside class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-label">Workspace</div>
-        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon">⊞</span> Applications</div>
-        <div class="sidebar-item active"><span class="sidebar-icon">👥</span> Users <span class="sidebar-badge">12</span></div>
-        <!-- <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div> -->
+        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon material-icons">grid_view</span> Applications</div>
+        <div class="sidebar-item active"><span class="sidebar-icon material-icons">group</span> Users <span class="sidebar-badge">12</span></div>
+        <!-- <div class="sidebar-item"><span class="sidebar-icon material-icons">business</span> Tenants</div> -->
       </div>
       <!-- <div class="sidebar-section">
         <div class="sidebar-label">System</div>
-        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
-        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
-        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">settings</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">bar_chart</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">notifications</span> Notifications</div>
       </div> -->
     </aside>
     <main class="main">
@@ -1893,13 +1890,13 @@ tbody td {
           <div class="page-title">Users</div>
           <div class="page-subtitle">Manage access and application permissions across your organization</div>
         </div>
-        <button class="btn btn-primary" onclick="openModal('add')">+ Add User</button>
+        <button class="btn btn-primary" onclick="openModal('add')"><span class="material-icons" style="font-size:15px;">person_add</span> Add User</button>
       </div>
 
       <div class="table-wrap">
         <div class="table-header">
           <div class="table-search">
-            <span style="font-size:12px; opacity:0.5;">🔍</span>
+            <span class="material-icons" style="font-size:16px; opacity:0.5;">search</span>
             <input type="text" placeholder="Search users…" oninput="filterUsers(this.value)" />
           </div>
           <div style="font-family:var(--font-mono); font-size:11px; color:var(--mute);">12 users · 4 admins</div>
@@ -1938,10 +1935,10 @@ tbody td {
             <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
             <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
           </div>
-          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
-          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-item" onclick="goTo('profile')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">account_circle</span> My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">lock</span> Change Password</div>
           <div class="nav-menu-sep"></div>
-          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+          <div class="nav-menu-item danger" onclick="goTo('login')"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">logout</span> Sign out</div>
         </div>
       </div>
     </div>
@@ -1950,15 +1947,15 @@ tbody td {
     <aside class="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-label">Workspace</div>
-        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon">⊞</span> Applications</div>
-        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon">👥</span> Users</div>
-        <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div>
+        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon material-icons">grid_view</span> Applications</div>
+        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon material-icons">group</span> Users</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">business</span> Tenants</div>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">System</div>
-        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
-        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
-        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">settings</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">bar_chart</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon material-icons">notifications</span> Notifications</div>
       </div>
     </aside>
     <main class="main">
@@ -1968,7 +1965,7 @@ tbody td {
           <div class="page-title">My Profile</div>
           <div class="page-subtitle">Manage your account details and preferences</div>
         </div>
-        <button class="btn btn-primary" onclick="showToast('✅','Profile saved successfully')">Save changes</button>
+        <button class="btn btn-primary" onclick="showToast('✅','Profile saved successfully')"><span class="material-icons" style="font-size:15px;">save</span> Save changes</button>
       </div>
 
       <div class="profile-card">
@@ -1976,7 +1973,7 @@ tbody td {
           <div class="profile-avatar">BK</div>
           <div>
             <div class="profile-name">Bharath Kumar</div>
-            <div class="profile-role">⊙ Super Admin</div>
+            <div class="profile-role"><span class="material-icons" style="font-size:12px;vertical-align:middle;">verified_user</span> Super Admin</div>
             <div class="profile-email">edwin@bsolsystems.com</div>
           </div>
         </div>
@@ -2021,7 +2018,7 @@ tbody td {
           </div>
         </div>
         <div style="margin-top:16px;">
-          <button class="btn btn-primary btn-sm" onclick="showToast('🔒','Password changed successfully')">Update password</button>
+          <button class="btn btn-primary btn-sm" onclick="showToast('🔒','Password changed successfully')"><span class="material-icons" style="font-size:14px;">lock_reset</span> Update password</button>
         </div>
       </div>
     </main>
@@ -2038,7 +2035,7 @@ tbody td {
         <div class="modal-title" id="modal-title-text">Add User</div>
         <div class="modal-subtitle" id="modal-subtitle-text">Fill in the details and assign application access below.</div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()"><span class="material-icons" style="font-size:16px;">close</span></button>
     </div>
     <div class="modal-body">
       <!-- User info form -->
@@ -2198,7 +2195,7 @@ function toggleLoginPw() {
   const btn = document.getElementById('login-pw-btn');
   const show = inp.type === 'password';
   inp.type = show ? 'text' : 'password';
-  btn.textContent = show ? '🙈' : '👁';
+  btn.innerHTML = show ? '<span class="material-icons" style="font-size:18px;">visibility_off</span>' : '<span class="material-icons" style="font-size:18px;">visibility</span>';
 }
 
 // ── CATEGORY COLLAPSE ─────────────────────
@@ -2310,8 +2307,8 @@ function renderUsers(filter='') {
       <td style="color:var(--faint); font-size:12px;">${u.joined}</td>
       <td>
         <div class="row-actions">
-          <button class="row-btn" onclick="openModal('edit',${u.id})">✎ Edit</button>
-          <button class="row-btn danger" onclick="deleteUser(${u.id})">✕</button>
+          <button class="row-btn" onclick="openModal('edit',${u.id})"><span class="material-icons" style="font-size:13px;">edit</span> Edit</button>
+          <button class="row-btn danger" onclick="deleteUser(${u.id})"><span class="material-icons" style="font-size:13px;">delete</span></button>
         </div>
       </td>
     </tr>
