@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MaritimeConnect360 — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Ocean Blue / Navy — Vercel structure, maritime palette */
+  --canvas:          #f0f4f8;
+  --canvas-app:      #e8eef5;
+  --surface:         #ffffff;
+  --surface-2:       #f7f9fc;
+  --ink:             #0a1628;
+  --body:            #3d5166;
+  --mute:            #6b85a0;
+  --faint:           #9db0c4;
+  --hairline:        #d6e0eb;
+  --hairline-soft:   #eaf0f7;
+
+  /* Ocean blue accent */
+  --accent:          #0057b8;
+  --accent-mid:      #0066d6;
+  --accent-soft:     #dbeafe;
+  --accent-faint:    #eff6ff;
+  --accent-hover:    #004fa3;
+
+  /* Navy deep */
+  --navy:            #0a1e3d;
+  --navy-mid:        #0f2852;
+  --navy-light:      #1a3a6b;
+
+  /* Module colors */
+  --c-bunker:        #f59e0b;
+  --c-vessel:        #0066d6;
+  --c-inspection:    #7c3aed;
+  --c-sanctions:     #dc2626;
+  --c-scheduling:    #94a3b8;
+
+  /* Status */
+  --success:         #059669;
+  --success-soft:    #d1fae5;
+  --warning:         #d97706;
+  --warning-soft:    #fef3c7;
+  --error:           #dc2626;
+  --error-soft:      #fee2e2;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   14px;
+  --r-pill: 9999px;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── SCREENS ──────────────────────────── */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+/* Login screen overrides: no scroll, exact viewport fit */
+#screen-login.active {
+  min-height: unset;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+/* ── TOP NAV ──────────────────────────── */
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 52px;
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  cursor: pointer;
+}
+.nav-logo {
+  width: 26px; height: 26px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo img { width: 100%; height: 100%; object-fit: contain; }
+.nav-brand-accent { color: #60a5fa; }
+.nav-right {
+  display: flex; align-items: center; gap: 16px;
+}
+.nav-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: #93c5fd;
+  background: rgba(96,165,250,0.12);
+  border: 1px solid rgba(96,165,250,0.2);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.04em;
+  transition: all 0.12s ease;
+}
+.nav-badge:hover {
+  background: rgba(96,165,250,0.25);
+  border-color: rgba(96,165,250,0.4);
+  color: #ffffff;
+}
+.nav-avatar {
+  width: 28px; height: 28px;
+  background: var(--navy-light);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #e0ecff;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s, border-color 0.12s;
+}
+.nav-avatar:hover {
+  background: var(--navy-mid);
+  border-color: rgba(255,255,255,0.3);
+}
+.nav-menu.open {
+  display: block;
+}
+.nav-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  z-index: 300;
+}
+.nav-menu-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--body);
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.nav-menu-item:hover { background: var(--canvas); color: var(--ink); }
+.nav-menu-item.danger { color: var(--error); }
+.nav-menu-item.danger:hover { background: var(--error-soft); }
+.nav-menu-sep { height: 1px; background: var(--hairline); margin: 4px 0; }
+
+/* ── LAYOUT ───────────────────────────── */
+.layout {
+  display: flex;
+  flex: 1;
+}
+
+/* ── SIDEBAR ──────────────────────────── */
+.sidebar {
+  width: 216px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--hairline);
+  padding: 20px 0;
+  position: sticky;
+  top: 52px;
+  height: calc(100vh - 52px);
+  overflow-y: auto;
+}
+.sidebar-section { margin-bottom: 4px; }
+.sidebar-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 0 16px 6px;
+  margin-top: 16px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mute);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: color 0.12s, background 0.12s;
+  user-select: none;
+}
+.sidebar-item:hover { color: var(--ink); background: var(--canvas); }
+.sidebar-item.active {
+  color: var(--accent);
+  background: var(--accent-faint);
+  border-left-color: var(--accent);
+}
+.sidebar-icon { font-size: 14px; opacity: 0.75; }
+.sidebar-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+}
+
+/* ── MAIN ─────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 32px 36px;
+  overflow: auto;
+}
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.page-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.page-subtitle {
+  font-size: 13px;
+  color: var(--mute);
+  margin-top: 2px;
+}
+
+/* ── SEARCH BOX ───────────────────────── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--mute);
+  cursor: text;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 200px;
+}
+.search-box:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--faint);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: auto;
+}
+
+/* ── SUMMARY BAR ──────────────────────── */
+.summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.summary-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  flex: 1;
+  border-right: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--mute);
+}
+.summary-stat:last-child { border-right: none; }
+.summary-stat strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  display: block;
+  letter-spacing: -0.5px;
+}
+.summary-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── CATEGORY ─────────────────────────── */
+.category-section { margin-bottom: 28px; }
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.category-bar {
+  width: 3px; height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.category-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+.category-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+}
+.category-line { flex: 1; height: 1px; background: var(--hairline); }
+.chevron {
+  font-size: 11px;
+  color: var(--faint);
+  transition: transform 0.2s;
+}
+.category-section.collapsed .chevron { transform: rotate(-90deg); }
+.category-section.collapsed .cards-grid { display: none; }
+
+/* ── CARDS GRID ───────────────────────── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ── APP CARD ─────────────────────────── */
+.app-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  cursor: default;
+  overflow: visible;
+}
+.app-card:hover:not(.disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 4px 16px rgba(0,87,184,0.08);
+  transform: translateY(-1px);
+}
+.app-card.disabled { opacity: 0.5; cursor: not-allowed; }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-icon-wrap {
+  width: 38px; height: 38px;
+  background: color-mix(in srgb, var(--module-color, var(--accent)) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--module-color, var(--accent)) 25%, transparent);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.card-badges { display: flex; align-items: center; gap: 6px; }
+
+.role-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--mute);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+  display: flex; align-items: center; gap: 3px;
+}
+.role-pill:hover { background: var(--hairline-soft); color: var(--ink); }
+.role-pill.admin {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: rgba(0,87,184,0.2);
+}
+.coming-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--warning);
+  background: var(--warning-soft);
+  border: 1px solid rgba(217,119,6,0.2);
+  border-radius: var(--r-pill);
+  padding: 2px 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--ink);
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+.card-desc {
+  font-size: 12px;
+  color: var(--mute);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.btn-launch {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+  font-family: var(--font-sans);
+  display: flex; align-items: center; gap: 5px;
+  letter-spacing: -0.1px;
+}
+.btn-launch:hover { background: var(--accent-hover); }
+.btn-launch:active { transform: scale(0.97); }
+.btn-launch:disabled { background: var(--hairline); color: var(--faint); cursor: not-allowed; }
+.card-icon-actions { display: flex; align-items: center; gap: 2px; }
+.icon-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  position: relative;
+}
+.icon-btn:hover { color: var(--ink); background: var(--canvas); }
+.icon-btn[disabled] { opacity: 0.3; cursor: not-allowed; }
+
+/* tooltips */
+.has-tooltip { position: relative; }
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  right: 0;
+  background: var(--navy);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #e0ecff;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.has-tooltip:hover .tooltip { opacity: 1; transform: translateY(0); }
+
+/* role dropdown */
+.role-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 4px;
+  z-index: 200;
+  min-width: 120px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  display: none;
+}
+.role-dropdown.open { display: block; }
+.role-option {
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--body);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.role-option:hover { background: var(--canvas); color: var(--ink); }
+.role-option.selected { color: var(--accent); font-weight: 600; }
+
+/* ── TOAST ────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--navy);
+  border-radius: var(--r-md);
+  padding: 11px 16px;
+  font-size: 13px;
+  color: #e0ecff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  animation: toast-in 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  max-width: 300px;
+  border-left: 3px solid var(--accent-mid);
+}
+.toast.removing { animation: toast-out 0.2s ease forwards; }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(20px); }
+}
+
+/* ── MODAL ────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,22,40,0.45);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  width: 860px;
+  max-width: 95vw;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  animation: modal-in 0.2s ease;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.97) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0;
+}
+.modal-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); }
+.modal-subtitle { font-size: 12px; color: var(--mute); margin-top: 1px; }
+.modal-close {
+  width: 32px; height: 32px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--mute);
+  transition: color 0.12s, background 0.12s;
+}
+.modal-close:hover { background: var(--hairline); color: var(--ink); }
+.modal-body { flex: 1; overflow: auto; padding: 24px; }
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid var(--hairline);
+  flex-shrink: 0;
+  background: var(--canvas);
+}
+.modal-summary {
+  font-size: 12px;
+  color: var(--mute);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.modal-summary strong { color: var(--ink); }
+.modal-actions { display: flex; align-items: center; gap: 8px; }
+
+/* ── BUTTONS ──────────────────────────── */
+.btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: none;
+  transition: background 0.12s, transform 0.1s;
+  display: flex; align-items: center; gap: 6px;
+  letter-spacing: -0.1px;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: var(--surface); color: var(--body); border: 1px solid var(--hairline); }
+.btn-ghost:hover { background: var(--canvas); color: var(--ink); }
+.btn-sm { font-size: 12px; padding: 5px 12px; }
+
+/* ── USER FORM ────────────────────────── */
+.user-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--body);
+  letter-spacing: -0.1px;
+}
+.form-input {
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.form-select {
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b85a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.form-group.full { grid-column: span 2; }
+
+/* ── ASSIGNMENT BOARD ─────────────────── */
+.board-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.board-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.board-col {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-height: 240px;
+}
+.board-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--body);
+}
+.board-col-header.user { border-top: 2px solid var(--accent); }
+.board-col-header.admin { border-top: 2px solid var(--navy); }
+.board-col-header.available { border-top: 2px solid var(--hairline); }
+.col-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--mute);
+  background: var(--hairline-soft);
+  border: 1px solid var(--hairline);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+}
+.col-badge.user-badge { color: var(--accent); background: var(--accent-soft); }
+.col-badge.admin-badge { color: var(--navy); background: #dbeafe; }
+.board-col-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 180px;
+}
+.board-col-body.drop-target {
+  background: var(--accent-faint);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+.app-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--body);
+  cursor: grab;
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.1s;
+  gap: 8px;
+  user-select: none;
+}
+.app-chip:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,87,184,0.08); }
+.app-chip:active { cursor: grabbing; transform: scale(1.02); }
+.app-chip.dragging { opacity: 0.4; }
+.chip-icon { font-size: 14px; flex-shrink: 0; }
+.chip-name { flex: 1; line-height: 1.2; color: var(--ink); }
+.chip-name small { display: block; font-size: 10px; color: var(--mute); font-weight: 400; }
+.chip-actions { display: flex; gap: 4px; }
+.chip-btn {
+  width: 22px; height: 22px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--faint);
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.1s, background 0.1s;
+}
+.chip-btn:hover { color: var(--accent); background: var(--accent-soft); }
+.chip-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--canvas);
+}
+.chip-disabled .chip-btn { display: none; }
+.chip-coming {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--warning);
+  background: var(--warning-soft);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.04em;
+}
+.col-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--faint);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.col-empty svg { opacity: 0.3; margin-bottom: 6px; }
+
+/* ── USERS TABLE ──────────────────────── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--hairline);
+}
+.table-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--mute);
+  min-width: 220px;
+}
+.table-search input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+}
+.table-search input::placeholder { color: var(--faint); }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+  background: var(--canvas);
+}
+tbody tr { border-bottom: 1px solid var(--hairline-soft); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--canvas); }
+tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--body);
+  vertical-align: middle;
+}
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy-light), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.user-name { font-weight: 600; color: var(--ink); font-size: 13px; }
+.user-email { font-size: 11px; color: var(--mute); }
+.status-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.status-active { color: var(--success); background: var(--success-soft); }
+.status-inactive { color: var(--faint); background: var(--canvas); border: 1px solid var(--hairline); }
+.app-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.app-mini {
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.app-mini.admin-role { color: var(--navy); background: #e0ecff; }
+.row-actions { display: flex; align-items: center; gap: 4px; }
+.row-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--body);
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex; align-items: center; gap: 4px;
+}
+.row-btn:hover { background: var(--canvas); color: var(--ink); border-color: var(--accent); }
+.row-btn.danger:hover { background: var(--error-soft); color: var(--error); border-color: rgba(220,38,38,0.3); }
+
+/* ── LOGIN SCREEN ─────────────────────── */
+#screen-login {
+  align-items: stretch;
+  justify-content: stretch;
+  background: var(--canvas);
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  flex-direction: row !important;
+}
+
+/* Left panel — form */
+.login-panel-left {
+  width: 440px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 48px;
+  background: #ffffff;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.login-brand-logo {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.login-brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+.login-brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.login-brand-name span { color: var(--accent); }
+.login-heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.login-subheading {
+  font-size: 13px;
+  color: var(--mute);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.login-field { margin-bottom: 12px; }
+.login-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+.login-field input {
+  width: 100%;
+  height: 42px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.login-field input:focus {
+  background: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.login-pw-wrap { position: relative; }
+.login-pw-wrap input { padding-right: 42px !important; }
+.login-pw-toggle {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--faint);
+  font-size: 14px;
+  transition: color 0.12s;
+}
+.login-pw-toggle:hover { color: var(--mute); }
+.login-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.login-field-row label { margin-bottom: 0; }
+.login-forgot {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+.login-forgot:hover { text-decoration: underline; }
+.btn-login {
+  width: 100%;
+  height: 44px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--accent) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: -0.1px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-login:hover { opacity: 0.9; }
+.btn-login:active { transform: scale(0.99); }
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  font-size: 12px;
+  color: var(--faint);
+}
+.login-divider::before, .login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+.login-sso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--body);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.login-sso:hover { background: var(--canvas); border-color: var(--accent); color: var(--ink); }
+.login-footer-left {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--faint);
+  line-height: 1.6;
+}
+.login-footer-left a { color: var(--accent); text-decoration: none; }
+.login-footer-left a:hover { text-decoration: underline; }
+
+/* Right panel — completely redesigned */
+.login-panel-right {
+  flex: 1;
+  background: linear-gradient(155deg, #060f1e 0%, #0a1e3d 45%, #0c2550 75%, #071830 100%);
+  position: relative;
+  overflow: hidden;
+}
+/* Ambient light blobs */
+.login-panel-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 65% 25%, rgba(0,102,214,0.28) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 35% at 25% 75%, rgba(0,163,224,0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 30% at 80% 80%, rgba(96,165,250,0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Subtle grid overlay */
+.login-panel-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,87,184,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,87,184,0.06) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Module showcase grid ── */
+.rp-modules {
+  position: absolute;
+  top: 48px;
+  left: 44px;
+  right: 44px;
+  z-index: 2;
+}
+.rp-modules-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(147,197,253,0.5);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rp-modules-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+.rp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.rp-card {
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.rp-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+}
+.rp-card-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.rp-card-body { flex: 1; min-width: 0; }
+.rp-card-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e0ecff;
+  letter-spacing: -0.1px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rp-card-desc {
+  font-size: 10px;
+  color: rgba(224,236,255,0.45);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.rp-card-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rp-card-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #60a5fa;
+}
+.rp-card-pill {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 99px;
+  letter-spacing: 0.03em;
+}
+.rp-pill-green { color: #34d399; background: rgba(52,211,153,0.12); }
+.rp-pill-amber { color: #fbbf24; background: rgba(251,191,36,0.12); }
+.rp-pill-blue  { color: #60a5fa; background: rgba(96,165,250,0.12); }
+.rp-pill-red   { color: #f87171; background: rgba(248,113,113,0.12); }
+.rp-card-bar {
+  height: 2px;
+  border-radius: 1px;
+  margin-top: 8px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.rp-card-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+}
+
+/* ── Tagline / bottom section ── */
+.rp-tagline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 44px 36px;
+  z-index: 2;
+  background: linear-gradient(0deg, rgba(6,15,30,0.95) 0%, rgba(6,15,30,0.7) 60%, transparent 100%);
+}
+.rp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  background: rgba(96,165,250,0.1);
+  border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 99px;
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+.rp-badge::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #60a5fa;
+  animation: rp-pulse 2s ease-in-out infinite;
+}
+@keyframes rp-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+.rp-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+.rp-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, #60a5fa, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rp-desc {
+  font-size: 12px;
+  color: rgba(224,236,255,0.5);
+  line-height: 1.65;
+  margin-bottom: 18px;
+  max-width: 380px;
+}
+.rp-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.rp-stat {
+  flex: 1;
+  padding: 10px 14px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.rp-stat:last-child { border-right: none; }
+.rp-stat-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.rp-stat-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(224,236,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+/* Forgot password screen updates */
+.login-wrap {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login-logo {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+}
+.login-logo img { width: 100%; height: 100%; object-fit: contain; }
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0,30,80,0.06);
+}
+.login-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; color: var(--ink); margin-bottom: 4px; }
+.login-subtitle { font-size: 13px; color: var(--mute); margin-bottom: 24px; }
+.login-footer { font-size: 11px; color: var(--faint); text-align: center; margin-top: 20px; }
+@media (max-width: 900px) {
+  #screen-login { flex-direction: column !important; }
+  .login-panel-left { width: 100%; padding: 40px 32px; }
+  .login-panel-right { display: none; }
+}
+
+/* ── PROFILE SCREEN ───────────────────── */
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  max-width: 560px;
+  margin-bottom: 20px;
+}
+.profile-top { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+.profile-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy-light), var(--accent-mid));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.profile-name { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); }
+.profile-role { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+.profile-email { font-size: 12px; color: var(--mute); margin-top: 1px; }
+.profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── SCROLLBAR ────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 99px; }
+
+/* ── RESPONSIVE ───────────────────────── */
+@media (max-width: 1100px) { .cards-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 720px) {
+  .sidebar { display: none; }
+  .main { padding: 20px 16px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .board-columns { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN: LOGIN
+════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+
+  <!-- LEFT: Login Form -->
+  <div class="login-panel-left">
+
+    <!-- Brand -->
+    <div class="login-brand">
+      <div class="login-brand-logo"><img src="asset/MC360logo.png" alt="MC360" /></div>
+      <div class="login-brand-name">MaritimeConnect<span>360</span></div>
+    </div>
+
+    <!-- Heading -->
+    <div class="login-heading">Welcome aboard,<br>Captain.</div>
+    <div class="login-subheading">Log in to your maritime command centre. Your fleet, surveys, and compliance tools are ready when you are.</div>
+
+    <!-- Email -->
+    <div class="login-field">
+      <label for="login-email">Email address</label>
+      <input id="login-email" type="email" placeholder="you@bsolsystems.com" value="edwin@bsolsystems.com" />
+    </div>
+
+    <!-- Password -->
+    <div class="login-field">
+      <div class="login-field-row">
+        <label for="login-password">Password</label>
+        <a class="login-forgot" onclick="showForgot()">Forgot password?</a>
+      </div>
+      <div class="login-pw-wrap">
+        <input id="login-password" type="password" placeholder="••••••••" value="Welcome@1234" />
+        <button type="button" class="login-pw-toggle" onclick="toggleLoginPw()" id="login-pw-btn">👁</button>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-login" onclick="goTo('dashboard')">Log in to MC360</button>
+
+    <!-- SSO -->
+    <!-- <div class="login-divider">or continue with SSO</div>
+    <button class="login-sso" onclick="showToast('🔐', 'SSO login — coming soon')">
+      <span style="font-size:15px;">🏢</span> Log in with BSOL Systems SSO
+    </button> -->
+
+    <!-- Footer -->
+    <div class="login-footer-left">
+      <span style="font-family:var(--font-mono); color:var(--accent); font-size:10px;">MC360 v2.4.1</span>
+      &nbsp;·&nbsp; Protected by BSOL Systems SSO &nbsp;·&nbsp;
+      <a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Use</a>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Visual Panel -->
+  <div class="login-panel-right">
+
+    <!-- Module Showcase Grid -->
+    <div class="rp-modules">
+      <div class="rp-modules-label">Integrated modules</div>
+      <div class="rp-grid">
+
+        <!-- BQS -->
+        <div class="rp-card">
+          <div class="rp-card-icon" style="background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.2);">⛽</div>
+          <div class="rp-card-body">
+            <div class="rp-card-name">Bunker Quantity Survey</div>
+            <div class="rp-card-desc">MARPOL-compliant fuel measurement & BQS report generation</div>
+            <div class="rp-card-stat">
+              <span class="rp-card-val">142 surveys</span>
+              <span class="rp-card-pill rp-pill-green">+8% ↑</span>
+            </div>
+            <div class="rp-card-bar"><div class="rp-card-bar-fill" style="width:78%; background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div></div>
+          </div>
+        </div>
+
+        <!-- VCS -->
+        <div class="rp-card">
+          <div class="rp-card-icon" style="background:rgba(0,102,214,0.12); border-color:rgba(0,102,214,0.2);">🚢</div>
+          <div class="rp-card-body">
+            <div class="rp-card-name">Vessel Condition Survey</div>
+            <div class="rp-card-desc">Structural integrity assessments across all vessel compartments</div>
+            <div class="rp-card-stat">
+              <span class="rp-card-val">38 vessels</span>
+              <span class="rp-card-pill rp-pill-blue">Active</span>
+            </div>
+            <div class="rp-card-bar"><div class="rp-card-bar-fill" style="width:91%; background:linear-gradient(90deg,#0066d6,#60a5fa);"></div></div>
+          </div>
+        </div>
+
+        <!-- VIA -->
+        <div class="rp-card">
+          <div class="rp-card-icon" style="background:rgba(124,58,237,0.12); border-color:rgba(124,58,237,0.2);">🔍</div>
+          <div class="rp-card-body">
+            <div class="rp-card-name">Vessel Inspection & Audit</div>
+            <div class="rp-card-desc">Port-state & flag-state inspections with deficiency tracking</div>
+            <div class="rp-card-stat">
+              <span class="rp-card-val">94.2% pass</span>
+              <span class="rp-card-pill rp-pill-green">On track</span>
+            </div>
+            <div class="rp-card-bar"><div class="rp-card-bar-fill" style="width:94%; background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div>
+          </div>
+        </div>
+
+        <!-- Global Sanctions -->
+        <div class="rp-card">
+          <div class="rp-card-icon" style="background:rgba(220,38,38,0.10); border-color:rgba(220,38,38,0.18);">🛡️</div>
+          <div class="rp-card-body">
+            <div class="rp-card-name">Global Sanctions Search</div>
+            <div class="rp-card-desc">Real-time screening against OFAC, UN & EU sanctions lists</div>
+            <div class="rp-card-stat">
+              <span class="rp-card-val">0 flags</span>
+              <span class="rp-card-pill rp-pill-green">Clear ✓</span>
+            </div>
+            <div class="rp-card-bar"><div class="rp-card-bar-fill" style="width:100%; background:linear-gradient(90deg,#059669,#34d399);"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tagline pinned to bottom -->
+    <div class="rp-tagline">
+      <div class="rp-badge">Maritime Intelligence Platform</div>
+      <div class="rp-title">Your entire fleet,<br><em>one command centre.</em></div>
+      <div class="rp-desc">MaritimeConnect360 unifies surveys, inspections, sanctions screening and compliance tracking — so every maritime decision is backed by real-time intelligence.</div>
+      <div class="rp-stats">
+        <div class="rp-stat">
+          <div class="rp-stat-num">4</div>
+          <div class="rp-stat-label">Modules</div>
+        </div>
+        <div class="rp-stat">
+          <div class="rp-stat-num">MARPOL</div>
+          <div class="rp-stat-label">Compliant</div>
+        </div>
+        <div class="rp-stat">
+          <div class="rp-stat-num">Real-time</div>
+          <div class="rp-stat-label">Sanctions</div>
+        </div>
+        <div class="rp-stat">
+          <div class="rp-stat-num">ISO</div>
+          <div class="rp-stat-label">Certified</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: FORGOT PASSWORD
+════════════════════════════════════════ -->
+<div id="screen-forgot" class="screen" style="align-items:center; justify-content:center; background:var(--canvas);">
+  <div class="login-wrap">
+    <div class="login-logo">🔑</div>
+    <div class="login-card">
+      <div style="margin-bottom: 6px;">
+        <a onclick="goTo('login')" style="font-size:12px; color:var(--mute); cursor:pointer; display:flex; align-items:center; gap:4px; margin-bottom:16px;">← Back to sign in</a>
+      </div>
+      <div class="login-title">Reset password</div>
+      <div class="login-subtitle">We'll email you a link to reset your password.</div>
+      <div class="login-field">
+        <label>Email address</label>
+        <input type="email" placeholder="you@bsolsystems.com" />
+      </div>
+      <button class="btn-login" onclick="showToast('📧','Reset link sent — check your inbox'); goTo('login')">Send reset link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SHARED NAV + LAYOUT WRAPPER
+     (shown for dashboard / users / profile)
+════════════════════════════════════════ -->
+
+<!-- DASHBOARD SCREEN -->
+<div id="screen-dashboard" class="screen">
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-brand" onclick="goTo('dashboard')">
+      <div class="nav-logo"><img src="asset/MC360logo.png" alt="MC360" /></div>
+      MaritimeConnect<span class="nav-brand-accent">360</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge" style="cursor: pointer;" onclick="showToast('⚡', 'Upgrade options will be available soon!')">Trial Account · Upgrade when ready</span>
+      <div class="nav-avatar" onclick="toggleUserMenu(event)">
+        BK
+        <div class="nav-menu">
+          <div class="nav-menu-header" style="padding: 8px 12px; border-bottom: 1px solid var(--hairline); margin-bottom: 6px;">
+            <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
+            <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
+          </div>
+          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-sep"></div>
+          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Workspace</div>
+        <div class="sidebar-item active"><span class="sidebar-icon">⊞</span> Applications</div>
+        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon">👥</span> Users <span class="sidebar-badge">12</span></div>
+        <!-- <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div> -->
+      </div>
+      <!-- <div class="sidebar-section">
+        <div class="sidebar-label">System</div>
+        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+      </div> -->
+    </aside>
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Workspace</div>
+          <div class="page-title">Applications</div>
+          <div class="page-subtitle">Manage and launch your maritime tools — grouped by function</div>
+        </div>
+        <div class="page-meta" style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+          <div class="search-box has-tooltip">
+            <span style="font-size:12px; opacity:0.6;">🔍</span>
+            Quick find…
+            <span class="kbd">⌘K</span>
+            <div class="tooltip" style="right:0; white-space:nowrap;">Search across all apps</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY BAR -->
+      <div class="summary-bar">
+        <div class="summary-stat">
+          <div class="summary-dot" style="background: var(--accent);"></div>
+          <div><strong>5</strong>Total apps</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-dot" style="background: var(--success);"></div>
+          <div><strong>4</strong>Active</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-dot" style="background: var(--warning);"></div>
+          <div><strong>1</strong>Coming soon</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-dot" style="background: var(--navy);"></div>
+          <div><strong style="color:var(--navy)">Admin</strong>Your access level</div>
+        </div>
+      </div>
+
+      <!-- SURVEYS & INSPECTIONS -->
+      <div class="category-section" id="cat-surveys">
+        <div class="category-header" onclick="toggleCat('cat-surveys')">
+          <div class="category-bar"></div>
+          <div class="category-title">Surveys &amp; Inspections <span class="category-count">3 apps</span></div>
+          <div class="category-line"></div>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="cards-grid">
+
+          <div class="app-card" style="--module-color: var(--c-bunker)">
+            <div class="card-top">
+              <div class="card-icon-wrap">⛽</div>
+              <div class="card-badges">
+                <div class="role-pill admin has-tooltip" onclick="openRoleDD(event,'rd-bunker')">
+                  Admin ▾
+                  <div class="role-dropdown" id="rd-bunker">
+                    <div class="role-option selected" onclick="setRole(event,'rd-bunker','Admin')">✓ Admin</div>
+                    <div class="role-option" onclick="setRole(event,'rd-bunker','User')">User</div>
+                    <div class="role-option" onclick="setRole(event,'rd-bunker','Viewer')">Viewer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-title">Bunker Quantity Survey</div>
+            <div class="card-desc">Measure and record fuel quantity during bunkering. Generate certified BQS reports compliant with MARPOL Annex VI.</div>
+            <div class="card-actions">
+              <button class="btn-launch" onclick="launchApp('Bunker Quantity Survey')">Launch ↗</button>
+              <div class="card-icon-actions">
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Bunker Quantity Survey')">⬇<div class="tooltip">Export data</div></button>
+                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card" style="--module-color: var(--c-vessel)">
+            <div class="card-top">
+              <div class="card-icon-wrap">🚢</div>
+              <div class="card-badges">
+                <div class="role-pill admin has-tooltip" onclick="openRoleDD(event,'rd-vessel')">
+                  Admin ▾
+                  <div class="role-dropdown" id="rd-vessel">
+                    <div class="role-option selected" onclick="setRole(event,'rd-vessel','Admin')">✓ Admin</div>
+                    <div class="role-option" onclick="setRole(event,'rd-vessel','User')">User</div>
+                    <div class="role-option" onclick="setRole(event,'rd-vessel','Viewer')">Viewer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-title">Vessel Condition Survey</div>
+            <div class="card-desc">Assess and document vessel structural integrity, equipment status, and condition ratings across all compartments.</div>
+            <div class="card-actions">
+              <button class="btn-launch" onclick="launchApp('Vessel Condition Survey')">Launch ↗</button>
+              <div class="card-icon-actions">
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Condition Survey')">⬇<div class="tooltip">Export data</div></button>
+                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card" style="--module-color: var(--c-inspection)">
+            <div class="card-top">
+              <div class="card-icon-wrap">🔍</div>
+              <div class="card-badges">
+                <div class="role-pill has-tooltip" onclick="openRoleDD(event,'rd-inspection')">
+                  User ▾
+                  <div class="role-dropdown" id="rd-inspection">
+                    <div class="role-option" onclick="setRole(event,'rd-inspection','Admin')">Admin</div>
+                    <div class="role-option selected" onclick="setRole(event,'rd-inspection','User')">✓ User</div>
+                    <div class="role-option" onclick="setRole(event,'rd-inspection','Viewer')">Viewer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-title">Vessel Inspection</div>
+            <div class="card-desc">Conduct port-state and flag-state inspections. Track deficiencies and corrective actions to closure.</div>
+            <div class="card-actions">
+              <button class="btn-launch" onclick="launchApp('Vessel Inspection')">Launch ↗</button>
+              <div class="card-icon-actions">
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Vessel Inspection')">⬇<div class="tooltip">Export report</div></button>
+                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- COMPLIANCE -->
+      <div class="category-section" id="cat-compliance">
+        <div class="category-header" onclick="toggleCat('cat-compliance')">
+          <div class="category-bar" style="background:var(--c-sanctions)"></div>
+          <div class="category-title">Compliance <span class="category-count">1 app</span></div>
+          <div class="category-line"></div>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="cards-grid">
+          <div class="app-card" style="--module-color: var(--c-sanctions)">
+            <div class="card-top">
+              <div class="card-icon-wrap">🛡️</div>
+              <div class="card-badges">
+                <div class="role-pill admin has-tooltip" onclick="openRoleDD(event,'rd-sanctions')">
+                  Admin ▾
+                  <div class="role-dropdown" id="rd-sanctions">
+                    <div class="role-option selected" onclick="setRole(event,'rd-sanctions','Admin')">✓ Admin</div>
+                    <div class="role-option" onclick="setRole(event,'rd-sanctions','User')">User</div>
+                    <div class="role-option" onclick="setRole(event,'rd-sanctions','Viewer')">Viewer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-title">Global Sanctions</div>
+            <div class="card-desc">Screen vessels, entities, and counterparties against international sanctions lists in real time.</div>
+            <div class="card-actions">
+              <button class="btn-launch" onclick="launchApp('Global Sanctions')">Launch ↗</button>
+              <div class="card-icon-actions">
+                <button class="icon-btn has-tooltip" onclick="downloadApp('Global Sanctions')">⬇<div class="tooltip">Export screening report</div></button>
+                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Documentation</div></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPERATIONS -->
+      <div class="category-section" id="cat-ops">
+        <div class="category-header" onclick="toggleCat('cat-ops')">
+          <div class="category-bar" style="background:var(--c-scheduling)"></div>
+          <div class="category-title">Operations <span class="category-count">1 app</span></div>
+          <div class="category-line"></div>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="cards-grid">
+          <div class="app-card disabled" style="--module-color: var(--c-scheduling)">
+            <div class="card-top">
+              <div class="card-icon-wrap" style="opacity:0.6">📅</div>
+              <div class="card-badges"><span class="coming-badge">Coming soon</span></div>
+            </div>
+            <div class="card-title" style="color:var(--mute)">Scheduling</div>
+            <div class="card-desc">Plan and manage vessel schedules, port rotations, and voyage itineraries. Available Q3 2025.</div>
+            <div class="card-actions">
+              <button class="btn-launch" disabled>Launch ↗</button>
+              <div class="card-icon-actions">
+                <button class="icon-btn" disabled>⬇</button>
+                <button class="icon-btn has-tooltip">ℹ<div class="tooltip">Under development — coming Q3 2025</div></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- USERS SCREEN -->
+<div id="screen-users" class="screen">
+  <nav class="topnav">
+    <div class="nav-brand" onclick="goTo('dashboard')">
+      <div class="nav-logo"><img src="asset/MC360logo.png" alt="MC360" /></div>
+      MaritimeConnect<span class="nav-brand-accent">360</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge" style="cursor: pointer;" onclick="showToast('⚡', 'Upgrade options will be available soon!')">Trial Account · Upgrade when ready</span>
+      <div class="nav-avatar" onclick="toggleUserMenu(event)">
+        BK
+        <div class="nav-menu">
+          <div class="nav-menu-header" style="padding: 8px 12px; border-bottom: 1px solid var(--hairline); margin-bottom: 6px;">
+            <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
+            <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
+          </div>
+          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-sep"></div>
+          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Workspace</div>
+        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon">⊞</span> Applications</div>
+        <div class="sidebar-item active"><span class="sidebar-icon">👥</span> Users <span class="sidebar-badge">12</span></div>
+        <!-- <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div> -->
+      </div>
+      <!-- <div class="sidebar-section">
+        <div class="sidebar-label">System</div>
+        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+      </div> -->
+    </aside>
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Administration</div>
+          <div class="page-title">Users</div>
+          <div class="page-subtitle">Manage access and application permissions across your organization</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add')">+ Add User</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-search">
+            <span style="font-size:12px; opacity:0.5;">🔍</span>
+            <input type="text" placeholder="Search users…" oninput="filterUsers(this.value)" />
+          </div>
+          <div style="font-family:var(--font-mono); font-size:11px; color:var(--mute);">12 users · 4 admins</div>
+        </div>
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>App Access</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="screen-profile" class="screen">
+  <nav class="topnav">
+    <div class="nav-brand" onclick="goTo('dashboard')">
+      <div class="nav-logo"><img src="asset/MC360logo.png" alt="MC360" /></div>
+      MaritimeConnect<span class="nav-brand-accent">360</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge" style="cursor: pointer;" onclick="showToast('⚡', 'Upgrade options will be available soon!')">Trial Account · Upgrade when ready</span>
+      <div class="nav-avatar" onclick="toggleUserMenu(event)">
+        BK
+        <div class="nav-menu">
+          <div class="nav-menu-header" style="padding: 8px 12px; border-bottom: 1px solid var(--hairline); margin-bottom: 6px;">
+            <div style="font-weight: 600; color: var(--ink); font-size: 13px; line-height: 1.2;">Bharath Kumar</div>
+            <div style="font-size: 11px; color: var(--mute); margin-top: 1px;">Super Admin</div>
+          </div>
+          <div class="nav-menu-item" onclick="goTo('profile')">⊙ My Profile</div>
+          <div class="nav-menu-item" onclick="goTo('profile'); setTimeout(() => { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }, 100);">🔒 Change Password</div>
+          <div class="nav-menu-sep"></div>
+          <div class="nav-menu-item danger" onclick="goTo('login')">← Sign out</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Workspace</div>
+        <div class="sidebar-item" onclick="goTo('dashboard')"><span class="sidebar-icon">⊞</span> Applications</div>
+        <div class="sidebar-item" onclick="goTo('users')"><span class="sidebar-icon">👥</span> Users</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🏢</span> Tenants</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">System</div>
+        <div class="sidebar-item"><span class="sidebar-icon">⚙️</span> Settings</div>
+        <div class="sidebar-item"><span class="sidebar-icon">📊</span> Audit Log</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🔔</span> Notifications</div>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Account</div>
+          <div class="page-title">My Profile</div>
+          <div class="page-subtitle">Manage your account details and preferences</div>
+        </div>
+        <button class="btn btn-primary" onclick="showToast('✅','Profile saved successfully')">Save changes</button>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-top">
+          <div class="profile-avatar">BK</div>
+          <div>
+            <div class="profile-name">Bharath Kumar</div>
+            <div class="profile-role">⊙ Super Admin</div>
+            <div class="profile-email">edwin@bsolsystems.com</div>
+          </div>
+        </div>
+        <div class="profile-fields">
+          <div class="form-group">
+            <label class="form-label">First name</label>
+            <input class="form-input" value="Bharath" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name</label>
+            <input class="form-input" value="Kumar" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Email address</label>
+            <input class="form-input" value="edwin@bsolsystems.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <input class="form-input" value="Super Admin" readonly style="background:var(--canvas); color:var(--mute);" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Organization</label>
+            <input class="form-input" value="BSOL Systems" readonly style="background:var(--canvas); color:var(--mute);" />
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div style="font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px;">Change Password</div>
+        <div class="profile-fields">
+          <div class="form-group full">
+            <label class="form-label">Current password</label>
+            <input class="form-input" type="password" placeholder="••••••••" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">New password</label>
+            <input class="form-input" type="password" placeholder="••••••••" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm new password</label>
+            <input class="form-input" type="password" placeholder="••••••••" />
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary btn-sm" onclick="showToast('🔒','Password changed successfully')">Update password</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: ADD / EDIT USER
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title-text">Add User</div>
+        <div class="modal-subtitle" id="modal-subtitle-text">Fill in the details and assign application access below.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- User info form -->
+      <div style="font-size:12px; font-weight:600; color:var(--body); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+        <div style="width:20px; height:20px; background:var(--navy); border-radius:50%; color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">1</div>
+        User Information
+      </div>
+      <div class="user-form">
+        <div class="form-group">
+          <label class="form-label">First name</label>
+          <input class="form-input" id="f-fname" placeholder="e.g. Ravi" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last name</label>
+          <input class="form-input" id="f-lname" placeholder="e.g. Sharma" />
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Email address</label>
+          <input class="form-input" id="f-email" type="email" placeholder="ravi@bsolsystems.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">System role</label>
+          <select class="form-select" id="f-role">
+            <option>User</option>
+            <option>Admin</option>
+            <option>Super Admin</option>
+            <option>Viewer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="height:1px; background:var(--hairline); margin:4px 0 20px;"></div>
+
+      <!-- App assignment board -->
+      <div class="board-label">
+        <div style="width:20px; height:20px; background:var(--navy); border-radius:50%; color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">2</div>
+        Application Assignment
+        <span style="font-size:11px; color:var(--mute); font-weight:400; margin-left:2px;">Drag apps between columns to assign access</span>
+      </div>
+
+      <div class="board-columns" id="board">
+
+        <!-- AVAILABLE -->
+        <div class="board-col" id="col-available">
+          <div class="board-col-header available">
+            <span>Available</span>
+            <span class="col-badge" id="badge-available">5</span>
+          </div>
+          <div class="board-col-body" id="drop-available"
+            ondragover="allowDrop(event)" ondrop="dropChip(event,'available')">
+            <div class="app-chip" draggable="true" id="chip-bunker" ondragstart="dragStart(event,'chip-bunker')">
+              <span class="chip-icon">⛽</span>
+              <div class="chip-name">Bunker Quantity Survey<small>Surveys</small></div>
+              <div class="chip-actions">
+                <button class="chip-btn" onclick="moveChip('chip-bunker','user')" title="Assign User">+U</button>
+                <button class="chip-btn" onclick="moveChip('chip-bunker','admin')" title="Assign Admin">+A</button>
+              </div>
+            </div>
+            <div class="app-chip" draggable="true" id="chip-vessel" ondragstart="dragStart(event,'chip-vessel')">
+              <span class="chip-icon">🚢</span>
+              <div class="chip-name">Vessel Condition Survey<small>Surveys</small></div>
+              <div class="chip-actions">
+                <button class="chip-btn" onclick="moveChip('chip-vessel','user')" title="Assign User">+U</button>
+                <button class="chip-btn" onclick="moveChip('chip-vessel','admin')" title="Assign Admin">+A</button>
+              </div>
+            </div>
+            <div class="app-chip" draggable="true" id="chip-inspection" ondragstart="dragStart(event,'chip-inspection')">
+              <span class="chip-icon">🔍</span>
+              <div class="chip-name">Vessel Inspection<small>Surveys</small></div>
+              <div class="chip-actions">
+                <button class="chip-btn" onclick="moveChip('chip-inspection','user')" title="Assign User">+U</button>
+                <button class="chip-btn" onclick="moveChip('chip-inspection','admin')" title="Assign Admin">+A</button>
+              </div>
+            </div>
+            <div class="app-chip" draggable="true" id="chip-sanctions" ondragstart="dragStart(event,'chip-sanctions')">
+              <span class="chip-icon">🛡️</span>
+              <div class="chip-name">Global Sanctions<small>Compliance</small></div>
+              <div class="chip-actions">
+                <button class="chip-btn" onclick="moveChip('chip-sanctions','user')" title="Assign User">+U</button>
+                <button class="chip-btn" onclick="moveChip('chip-sanctions','admin')" title="Assign Admin">+A</button>
+              </div>
+            </div>
+            <div class="app-chip chip-disabled">
+              <span class="chip-icon">📅</span>
+              <div class="chip-name">Scheduling<small>Operations</small></div>
+              <span class="chip-coming">Soon</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- USER ACCESS -->
+        <div class="board-col" id="col-user">
+          <div class="board-col-header user">
+            <span>User Access</span>
+            <span class="col-badge user-badge" id="badge-user">0</span>
+          </div>
+          <div class="board-col-body" id="drop-user"
+            ondragover="allowDrop(event)" ondrop="dropChip(event,'user')">
+            <div class="col-empty">
+              Drag apps here<br>to grant User access
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN ACCESS -->
+        <div class="board-col" id="col-admin">
+          <div class="board-col-header admin">
+            <span>Admin Access</span>
+            <span class="col-badge admin-badge" id="badge-admin">0</span>
+          </div>
+          <div class="board-col-body" id="drop-admin"
+            ondragover="allowDrop(event)" ondrop="dropChip(event,'admin')">
+            <div class="col-empty">
+              Drag apps here<br>to grant Admin access
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-summary">
+        Available: <strong id="sum-available">5</strong> ·
+        User: <strong id="sum-user">0</strong> ·
+        Admin: <strong id="sum-admin">0</strong>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="saveUser()">Create User &amp; Send Invite</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script>
+// ── NAVIGATION ────────────────────────────
+function goTo(screen) {
+  closeAllDropdowns();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  window.scrollTo(0,0);
+  if (screen === 'users') renderUsers();
+}
+function showForgot() { goTo('forgot'); }
+function toggleLoginPw() {
+  const inp = document.getElementById('login-password');
+  const btn = document.getElementById('login-pw-btn');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+// ── CATEGORY COLLAPSE ─────────────────────
+function toggleCat(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── TOAST ──────────────────────────────────
+function showToast(icon, msg) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 220); }, 3000);
+}
+
+// ── LAUNCH / DOWNLOAD ────────────────────
+function launchApp(n) { showToast('↗', `Opening <strong>${n}</strong>…`); }
+function downloadApp(n) { showToast('⬇', `Preparing export for <strong>${n}</strong>…`); }
+
+// ── ROLE DROPDOWN ─────────────────────────
+let openDD = null;
+function openRoleDD(e, id) {
+  e.stopPropagation();
+  const dd = document.getElementById(id);
+  if (openDD && openDD !== dd) openDD.classList.remove('open');
+  dd.classList.toggle('open');
+  openDD = dd.classList.contains('open') ? dd : null;
+}
+function setRole(e, id, role) {
+  e.stopPropagation();
+  const dd = document.getElementById(id);
+  const pill = dd.closest('.role-pill');
+  dd.querySelectorAll('.role-option').forEach(o => {
+    o.classList.remove('selected');
+    o.textContent = o.textContent.replace('✓ ','');
+  });
+  e.currentTarget.classList.add('selected');
+  e.currentTarget.textContent = '✓ ' + role;
+  pill.innerHTML = role + ' ▾';
+  pill.appendChild(dd);
+  pill.className = 'role-pill has-tooltip' + (role==='Admin' ? ' admin' : '');
+  pill.onclick = ev => openRoleDD(ev, id);
+  dd.classList.remove('open');
+  openDD = null;
+  showToast('✅', `Role updated to <strong>${role}</strong>`);
+}
+function toggleUserMenu(e) {
+  e.stopPropagation();
+  const avatar = e.currentTarget;
+  const menu = avatar.querySelector('.nav-menu');
+  const isOpen = menu.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    menu.classList.add('open');
+  }
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.nav-menu').forEach(m => m.classList.remove('open'));
+  if (openDD) {
+    openDD.classList.remove('open');
+    openDD = null;
+  }
+}
+document.addEventListener('click', () => {
+  closeAllDropdowns();
+});
+document.addEventListener('keydown', e => {
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){ e.preventDefault(); showToast('⌘','Command palette — coming soon'); }
+});
+
+// ── USERS TABLE ───────────────────────────
+const USERS = [
+  { id:1, fn:'Ravi',    ln:'Sharma',  email:'ravi@bsolsystems.com',   role:'Admin',       apps:[{n:'BQS',r:'admin'},{n:'GSR',r:'admin'}],      status:'Active',   joined:'Jan 2024' },
+  { id:2, fn:'Priya',   ln:'Nair',    email:'priya@bsolsystems.com',  role:'User',        apps:[{n:'VI',r:'user'},{n:'VCS',r:'user'}],          status:'Active',   joined:'Feb 2024' },
+  { id:3, fn:'James',   ln:'Okafor',  email:'james@bsolsystems.com',  role:'Admin',       apps:[{n:'BQS',r:'admin'},{n:'VI',r:'admin'},{n:'GSR',r:'user'}], status:'Active', joined:'Mar 2024' },
+  { id:4, fn:'Aisha',   ln:'Malik',   email:'aisha@bsolsystems.com',  role:'Viewer',      apps:[{n:'VCS',r:'user'}],                            status:'Active',   joined:'Apr 2024' },
+  { id:5, fn:'Chen',    ln:'Wei',     email:'chen@bsolsystems.com',   role:'User',        apps:[{n:'BQS',r:'user'},{n:'GSR',r:'user'}],         status:'Inactive', joined:'May 2024' },
+];
+let usersData = [...USERS];
+
+function renderUsers(filter='') {
+  const tbody = document.getElementById('users-tbody');
+  const rows = usersData.filter(u =>
+    !filter ||
+    (u.fn+' '+u.ln).toLowerCase().includes(filter) ||
+    u.email.toLowerCase().includes(filter) ||
+    u.role.toLowerCase().includes(filter)
+  );
+  tbody.innerHTML = rows.map(u => `
+    <tr>
+      <td>
+        <div class="user-cell">
+          <div class="user-avatar">${u.fn[0]}${u.ln[0]}</div>
+          <div>
+            <div class="user-name">${u.fn} ${u.ln}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span style="font-size:12px; font-weight:600; color:${u.role==='Admin'||u.role==='Super Admin'?'var(--accent)':'var(--body)'}">${u.role}</span></td>
+      <td>
+        <div class="app-pills">
+          ${u.apps.map(a=>`<span class="app-mini ${a.r==='admin'?'admin-role':''}">${a.n}</span>`).join('')}
+        </div>
+      </td>
+      <td><span class="status-badge ${u.status==='Active'?'status-active':'status-inactive'}">● ${u.status}</span></td>
+      <td style="color:var(--faint); font-size:12px;">${u.joined}</td>
+      <td>
+        <div class="row-actions">
+          <button class="row-btn" onclick="openModal('edit',${u.id})">✎ Edit</button>
+          <button class="row-btn danger" onclick="deleteUser(${u.id})">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+function filterUsers(v){ renderUsers(v.toLowerCase()); }
+function deleteUser(id){
+  usersData = usersData.filter(u=>u.id!==id);
+  renderUsers();
+  showToast('🗑','User removed');
+}
+
+// ── MODAL ─────────────────────────────────
+function openModal(mode, userId) {
+  const m = document.getElementById('user-modal');
+  const title = document.getElementById('modal-title-text');
+  const sub = document.getElementById('modal-subtitle-text');
+  if(mode==='edit' && userId){
+    const u = usersData.find(x=>x.id===userId);
+    title.textContent = `Edit User — ${u.fn} ${u.ln}`;
+    sub.textContent = 'Update user details and application permissions.';
+    document.getElementById('f-fname').value = u.fn;
+    document.getElementById('f-lname').value = u.ln;
+    document.getElementById('f-email').value = u.email;
+    document.getElementById('f-role').value = u.role;
+    document.getElementById('f-status').value = u.status;
+    document.querySelector('.modal-footer .btn-primary').textContent = 'Save Changes';
+  } else {
+    title.textContent = 'Add User';
+    sub.textContent = 'Fill in the details and assign application access below.';
+    document.getElementById('f-fname').value='';
+    document.getElementById('f-lname').value='';
+    document.getElementById('f-email').value='';
+    document.querySelector('.modal-footer .btn-primary').textContent = 'Create User & Send Invite';
+  }
+  resetBoard();
+  m.classList.add('open');
+}
+function closeModal(){ document.getElementById('user-modal').classList.remove('open'); }
+function saveUser(){
+  const fn = document.getElementById('f-fname').value.trim();
+  const ln = document.getElementById('f-lname').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  if(!fn||!email){ showToast('⚠️','Name and email are required'); return; }
+  const ua = document.querySelectorAll('#drop-user .app-chip:not(.chip-disabled)').length;
+  const aa = document.querySelectorAll('#drop-admin .app-chip:not(.chip-disabled)').length;
+  usersData.push({ id:Date.now(), fn, ln, email, role:document.getElementById('f-role').value, apps:[], status:document.getElementById('f-status').value, joined:'Now' });
+  closeModal();
+  renderUsers();
+  showToast('✅', `User <strong>${fn} ${ln}</strong> created — invite sent`);
+}
+
+// ── DRAG & DROP BOARD ─────────────────────
+let dragging = null;
+function dragStart(e, id) {
+  dragging = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>{ const el=document.getElementById(id); if(el) el.classList.add('dragging'); },0);
+}
+function allowDrop(e){ e.preventDefault(); e.currentTarget.classList.add('drop-target'); }
+function dropChip(e, col) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drop-target');
+  if(!dragging) return;
+  const chip = document.getElementById(dragging);
+  if(!chip||chip.classList.contains('chip-disabled')){ dragging=null; return; }
+  chip.classList.remove('dragging');
+  const target = document.getElementById('drop-'+col);
+  // remove empty placeholder
+  target.querySelectorAll('.col-empty').forEach(el=>el.remove());
+  target.appendChild(chip);
+  // update chip buttons based on column
+  updateChipButtons(chip, col);
+  maybeAddEmpty();
+  updateBadges();
+  dragging = null;
+}
+function moveChip(chipId, col) {
+  const chip = document.getElementById(chipId);
+  if(!chip) return;
+  const target = document.getElementById('drop-'+col);
+  target.querySelectorAll('.col-empty').forEach(el=>el.remove());
+  target.appendChild(chip);
+  updateChipButtons(chip, col);
+  maybeAddEmpty();
+  updateBadges();
+}
+function updateChipButtons(chip, col) {
+  const btns = chip.querySelector('.chip-actions');
+  if(!btns) return;
+  btns.innerHTML = col==='available'
+    ? '<button class="chip-btn" onclick="moveChip(\''+chip.id+'\',\'user\')" title="Assign User">+U</button><button class="chip-btn" onclick="moveChip(\''+chip.id+'\',\'admin\')" title="Assign Admin">+A</button>'
+    : '<button class="chip-btn" onclick="moveChip(\''+chip.id+'\',\'available\')" title="Remove" style="color:var(--error)">✕</button>';
+}
+function maybeAddEmpty() {
+  ['user','admin'].forEach(col => {
+    const body = document.getElementById('drop-'+col);
+    const realChips = [...body.querySelectorAll('.app-chip:not(.chip-disabled)')];
+    if(realChips.length===0 && !body.querySelector('.col-empty')){
+      const empty = document.createElement('div');
+      empty.className = 'col-empty';
+      empty.textContent = col==='user' ? 'Drag apps here\nto grant User access' : 'Drag apps here\nto grant Admin access';
+      body.appendChild(empty);
+    }
+  });
+}
+function updateBadges() {
+  const av = document.querySelectorAll('#drop-available .app-chip:not(.chip-disabled)').length;
+  const us = document.querySelectorAll('#drop-user .app-chip').length;
+  const ad = document.querySelectorAll('#drop-admin .app-chip').length;
+  document.getElementById('badge-available').textContent = av;
+  document.getElementById('badge-user').textContent = us;
+  document.getElementById('badge-admin').textContent = ad;
+  document.getElementById('sum-available').textContent = av;
+  document.getElementById('sum-user').textContent = us;
+  document.getElementById('sum-admin').textContent = ad;
+}
+function resetBoard(){
+  // move all chips back to available
+  const avail = document.getElementById('drop-available');
+  ['drop-user','drop-admin'].forEach(col => {
+    const el = document.getElementById(col);
+    el.querySelectorAll('.app-chip:not(.chip-disabled)').forEach(chip => {
+      avail.appendChild(chip);
+      updateChipButtons(chip,'available');
+    });
+    el.querySelectorAll('.col-empty').forEach(e=>e.remove());
+    const empty = document.createElement('div');
+    empty.className='col-empty';
+    empty.textContent=col==='drop-user'?'Drag apps here\nto grant User access':'Drag apps here\nto grant Admin access';
+    el.appendChild(empty);
+  });
+  // dragover removes drop-target class
+  document.querySelectorAll('.board-col-body').forEach(el=>{
+    el.addEventListener('dragleave',()=>el.classList.remove('drop-target'));
+  });
+  updateBadges();
+}
+
+// init
+document.addEventListener('DOMContentLoaded', () => {
+  renderUsers();
+  resetBoard();
+});
+</script>
+</body>
+</html>
